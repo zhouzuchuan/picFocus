@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" >
+<title>焦点图</title>
+<link rel="stylesheet" href="http://365jia.cn/css/basic.css" type="text/css" />
+<link rel="stylesheet" href="css/css.css" type="text/css" />
+<script type="text/javascript" src="http://365jia.cn/js/jQuery/jquery-1.8.2.min.js"></script>
+</head>
+<body>
+<div class="main">
+  <div class="picFocus">
+    <ul class="fl_dib">
+
+      <li>
+        <a href="javascript:void(0);"><img src="http://pic16.huitu.com/res/20131231/523_20131231215854622200_1.jpg" class="img1" /></a>
+      </li>
+
+      <!-- <li>
+        <a href="javascript:void(0);"><img src="http://pic28.huitu.com/res/20150227/572294_20150227204507650200_1.jpg" class="img1" /></a>
+      </li>
+
+      <li>
+        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150126/670166_20150126114948336200_1.jpg" class="img1" /></a>
+      </li>
+ -->
+      <li>
+        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150116/660153_20150116132847292174_1.jpg" class="img1" /></a>
+      </li>
+
+      <li>
+        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150116/660153_20150116132847337119_1.jpg" class="img1" /></a>
+      </li>
+
+    </ul>
+  </div>
+    <a href="javascript:void(0);" class="test_next mr30">next</a>
+    <a href="javascript:void(0);" class="test_prev ml30">prev</a>
+<div>
+<script src="js/picFocus.js"></script>
+<script>
+  $('.picFocus').picFocus({
+    showIndex : 1 ,
+    direction : 'right' ,
+    auto : true ,
+    // next : '.test_next' ,
+    // prev : '.test_prev' ,
+    hideNextPrev : 'hover' ,
+    hoverStop : true ,
+    scroll : {
+      interval : 5000 
+    } ,
+    after : function (nowIndex , nextIndex) {
+      console.log('现在的下标：' + nowIndex + '\n' +'下一个下标：' + nextIndex );
+    }
+  });
+</script>
+</body>
+</html>

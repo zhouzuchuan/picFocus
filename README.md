@@ -42,35 +42,35 @@
 ## 二 、 调用方法（根据具体需求选择调用）
 
   $('.pf').picFocus({
-    showIndex : 0 ,         /*默认显示的第几张图片 从0开始*/
-    direction : 'left',     /*无缝滚动的方向*/
-    width : 'auto' ,        /*宽度*/
-    height : 'auto' ,       /*高度*/
-    next : '' ,             /*指定下一个按钮类*/
-    prev : '' ,             /*指定上一个按钮类*/
-    auto : true ,           /*开启自动滚动*/
-    hideNextPrev : false ,  /*隐藏按钮 'hover'为悬浮出现 'true'为不出现 'false'为出现 */
-    hoverStop : false ,     /*悬浮停止运动*/
+    showIndex : 0 ,
+    direction : 'left',
+    width : 'auto' ,
+    height : 'auto' ,
+    next : '' ,
+    prev : '' ,
+    auto : true ,
+    hideNextPrev : false ,
+    hoverStop : false ,
     loading : {
-      show : true ,         /*是否开启加载样式*/
-      text : '' ,           /*加载提示文字*/
-      loadingImgSrc : ''    /*加载等待动画路径 如果为false则不显示图片*/
+      show : true ,
+      text : '' ,
+      loadingImgSrc : ''
     },
     scroll : {
-      interval : 2000 ,     /*滚动切换间隔时间*/
-      duration : 500 ,      /*滚动运行时间*/
-      easing : 'linear'     /*滚动方式*/
+      interval : 2000 ,
+      duration : 500 ,
+      easing : 'linear'
     } ,
     thumb : {
-      show : false ,         /*是否开启缩略图*/
-      status : 'point' ,     /*缩略图状态： 图片状态'picture'  点状态'point' */
-      style : {} ,           /*自定义样式（只是在li标签上）*/
-      showSize : 5           /*缩略图显示个数*/
+      show : false ,
+      status : 'point' ,
+      style : {} ,
+      showSize : 5
     } ,
     txt : {
-      show : false           /*是否开启提示文字*/
+      show : false
     },
-    after : $.noop           /*切换之后执行的函数内部有两个参数（nowIndex , nextIndex）自动切换下 (现在显示的下标 , 下一个显示的下标)*/
+    after : $.noop
   });
 
 

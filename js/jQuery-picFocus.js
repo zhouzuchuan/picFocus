@@ -4,6 +4,8 @@
 *https://github.com/zhouzuchuan/picFocus
 *兼容性 ： IE6+/FF/Chrome...
 *版本 ： v1.0.0 【2015.05.18】
+*        v1.0.1 【2015.07.03】
+*                # 解决一个页面不能引用多次的bug
 *
 */
 
@@ -49,11 +51,18 @@
       eli : $(this).find('ul').children('li')
     }
 
+    if (this.length > 1) {
+      return this.each(function () {
+        $(this).picFocus(options , configs);
+      });
+    }
+
     options = $.extend({} , configs , options || {});
 
     $.picFocus(options , configs);
 
   }
+
 
   $.picFocus = function (options , configs) {
 
@@ -90,279 +99,274 @@
       txtShow : false
     });
 
+
     // 方法
-    var fun = {
-      // 初始化
-      _init : function () {
+    var fun = {};
+    // 初始化
+    fun._init = function () {
 
 
-        internal.eliSize = internal.eli.length;
-        internal.width = is_number(external.width) ? external.width : internal.ele.width();
-        internal.height = is_number(external.height) ? external.height : internal.ele.height();
-        internal.removing = internal.width;
+      internal.eliSize = internal.eli.length;
+      internal.width = is_number(external.width) ? external.width : internal.ele.width();
+      internal.height = is_number(external.height) ? external.height : internal.ele.height();
+      internal.removing = internal.width;
 
-        internal.ele.css({'position' : 'relative'});
-        internal.eul.wrap('<div class="pf_ul_wrap"></div>')
-                    .append('<li>' + internal.eli.first().html() + '</li>')
-                    .prepend('<li>' + internal.eli.last().html() + '</li>')
-                    .width(internal.removing * (internal.eliSize + 2)).css({
-                      'height' : internal.height
-                    }).parent().css({
-                      'width' : internal.width ,
-                      'height' : internal.height
-                    }).find('li').width(internal.width);
+      internal.ele.css({'position' : 'relative'});
+      internal.eul.wrap('<div class="pf_ul_wrap"></div>')
+                  .append('<li>' + internal.eli.first().html() + '</li>')
+                  .prepend('<li>' + internal.eli.last().html() + '</li>')
+                  .width(internal.removing * (internal.eliSize + 2)).css({
+                    'height' : internal.height
+                  }).parent().css({
+                    'width' : internal.width ,
+                    'height' : internal.height
+                  }).find('li').width(internal.width);
 
 
-        // 處理默認顯示
-        if (is_number(external.showIndex) && external.showIndex >= 0 && external.showIndex <= internal.eliSize) {
-          internal.index = external.showIndex + 1 ;
-        } else if (is_number(external.showIndex) && external.showIndex > internal.eliSize) {
-          internal.index = (external.showIndex % internal.eliSize) + 1 ;
+      // 處理默認顯示
+      if (is_number(external.showIndex) && external.showIndex >= 0 && external.showIndex <= internal.eliSize) {
+        internal.index = external.showIndex + 1 ;
+      } else if (is_number(external.showIndex) && external.showIndex > internal.eliSize) {
+        internal.index = (external.showIndex % internal.eliSize) + 1 ;
+      }
+      if (internal.index >= (internal.eliSize + 1)) {
+        internal.index = 1;
+      } else if (internal.index <= 0) {
+        internal.index = internal.eliSize;
+      }
+      internal.eul.css({'left' : (internal.index * internal.directionNum) * internal.removing});
+
+      internal.nowIndex = external.showIndex >= internal.eliSize ? (external.showIndex % internal.eliSize) : external.showIndex ;
+
+      // 處理按鈕懸浮方式
+      internal.ele.find(internal.btnPrev).hide();
+      internal.ele.find(internal.btnNext).hide();
+      if (is_string(external.next) && is_string(external.prev)) {
+        if (is_false(external.hideNextPrev)) {
+          internal.ele.find(internal.btnPrev).show();
+          internal.ele.find(internal.btnNext).show();
         }
-        if (internal.index >= (internal.eliSize + 1)) {
+      } else {
+        if (!is_true(external.hideNextPrev)) {
+          internal.eul.after('<span class="pf_next">&gt;</span><span class="pf_prev">&lt;</span>');
+          if (external.hideNextPrev == 'hover') {
+            internal.ele.find(internal.btnPrev).hide();
+            internal.ele.find(internal.btnNext).hide();
+          }
+        }
+      }
+
+      // 添加缩略图
+
+      if (internal.nowIndex > internal.thumbShowSize || is_undefined(internal.thumbFirstMove)) {
+        internal.thumbArr = [0 , internal.thumbShowSize - 1] ;
+      } else {
+        internal.thumbArr = [internal.nowIndex - (internal.thumbShowSize - 1) , internal.nowIndex] ;
+      }
+
+      if (is_true(internal.thumbShow)) {
+        internal.ele.append('<div class="pf_thumb_wrap"><ul class="pf_thumb_ul"></ul></div>');
+        var oFragment = document.createDocumentFragment() , tw , otherW ;
+        for (var i = 0 ; i < internal.eliSize ; i ++) {
+          var li = document.createElement('li');
+          if (internal.thumbStatus === 2) {
+            var img = document.createElement('img');
+            img.src = internal.eli.eq(i).find('img').attr('src');
+            li.className = 'pf_thumb_pic' ;
+            li.appendChild(img);
+          } else if (internal.thumbStatus === 1) {
+            li.className = 'pf_thumb_point' ;
+          }
+          oFragment.appendChild(li);
+        }
+        internal.ele.find(internal.thumbDom).append(oFragment);
+        otherW = internal.ele.find(internal.thumbDom).find('li').outerWidth(true) - internal.ele.find(internal.thumbDom).find('li').width();
+        if (internal.thumbShowSize <= internal.eliSize && internal.thumbStatus != 1) {
+          tw = Math.ceil(internal.width / internal.thumbShowSize) ;
+        } else {
+          tw = Math.ceil(internal.width / internal.eliSize) ;
+        }
+        internal.ele.find(internal.thumbDom).find('li').width(tw - otherW);
+        internal.ele.find(internal.thumbDom).width(tw * internal.eliSize).parent().css({
+          'width' : internal.width
+        });
+
+        if (is_object(external.thumb.style)) {
+          internal.ele.find(internal.thumbDom).find('li').css(external.thumb.style);
+        }
+        internal.ele.find(internal.thumbDom).find('li').click(function () {
+          if (!internal.moveSwitch) return false ;
+          internal.index = $(this).index() + 1 ;
+          fun._clickMove(null , $(this).parents(internal.ele));
+        });
+        fun._thumbClick(internal.index - 1);
+      }
+
+      // 添加提示文字
+      if (is_true(internal.txtShow)) {
+        internal.eul.parent().after('<div class="pf_txt_wrap"><ul class="pf_txt_ul"></ul><p class="pf_txt_bg"></p></div>');
+        var oFragment = document.createDocumentFragment();
+        for (var i = 0 ; i < internal.eliSize ; i ++) {
+          var li = document.createElement('li');
+          var span = document.createElement('span');
+          span.innerHTML = internal.eli.eq(i).find('img').attr('title');
+          li.appendChild(span);
+          oFragment.appendChild(li);
+        }
+        internal.ele.find(internal.txtDom).append(oFragment);
+        internal.ele.find(internal.txtDom).parent().css({
+          'width' : internal.width
+        });
+        fun._switchTxt(internal.index - 1);
+      }
+
+      // 上一个
+      internal.ele.find(internal.btnPrev).click(function () {
+          clearInterval(internal.timer);
+          fun._clickMove('prev' , $(this).parents(internal.ele));
+      });
+
+      // 下一个
+      internal.ele.find(internal.btnNext).click(function () {
+          clearInterval(internal.timer);
+          fun._clickMove('next' , $(this).parents(internal.ele));
+      });
+
+      // 前后按钮显示与隐藏
+      internal.eul.parent().on({
+        mouseenter : function () {
+          if (external.hideNextPrev == 'hover') {
+            internal.ele.find(internal.btnNext).show() ;
+            internal.ele.find(internal.btnPrev).show() ;
+          }
+          if (is_true(external.hoverStop)) {
+            clearInterval(internal.timer);
+            internal.ifHoverOut = true ;
+          }
+        } ,
+        mouseleave : function () {
+          if (external.hideNextPrev == 'hover') {
+            internal.ele.find(internal.btnNext).hide() ;
+            internal.ele.find(internal.btnPrev).hide() ;
+          }
+          if (is_true(external.hoverStop)) {
+            internal.ifHoverOut = false ;
+            internal.timer = setInterval(debugDirection , internal.interval);
+          }
+        }
+      });
+    } ;
+    // 前后按钮函数
+    fun._clickMove = function (a , b) {
+      if (!internal.moveSwitch) return false ;
+      internal.moveSwitch = false ;
+      clearInterval(internal.timer);
+      var chuan = 1 ;
+      if (a === 'next') {
+        internal.index ++ ;
+      } else if (a === 'prev') {
+        internal.index -- ;
+        chuan = -1 ;
+      }
+
+      // 處理下標
+      internal.nowIndex = internal.index - 1 ;
+      internal.nextIndex = internal.nowIndex + chuan ;
+      if (internal.nowIndex >= internal.eliSize ) {
+        internal.nowIndex %= internal.eliSize ;
+      } else if (internal.nowIndex < 0) {
+        internal.nowIndex += internal.eliSize ;
+      }
+      if (internal.nextIndex >= internal.eliSize) {
+        internal.nextIndex %= internal.eliSize ;
+      } else if (internal.nextIndex < 0) {
+        internal.nextIndex += internal.eliSize ;
+      }
+
+      fun._thumbClick(internal.nowIndex);
+      fun._switchTxt(internal.nowIndex);
+      // 運動
+      b.children('.pf_ul_wrap').find('ul').stop().animate({
+        'left' : (internal.index * internal.directionNum) * internal.removing
+      },internal.duration , internal.easing).queue(function (next) {
+        if (internal.index == (internal.eliSize + 1)) {
           internal.index = 1;
-        } else if (internal.index <= 0) {
+        } else if (internal.index == 0) {
           internal.index = internal.eliSize;
         }
-        internal.eul.css({'left' : (internal.index * internal.directionNum) * internal.removing});
-
-        internal.nowIndex = external.showIndex >= internal.eliSize ? (external.showIndex % internal.eliSize) : external.showIndex ;
-
-        // 處理按鈕懸浮方式
-        internal.ele.find(internal.btnPrev).hide();
-        internal.ele.find(internal.btnNext).hide();
-        if (is_string(external.next) && is_string(external.prev)) {
-          if (is_false(external.hideNextPrev)) {
-            internal.ele.find(internal.btnPrev).show();
-            internal.ele.find(internal.btnNext).show();
-          }
-        } else {
-          if (!is_true(external.hideNextPrev)) {
-            internal.eul.after('<span class="pf_next">&gt;</span><span class="pf_prev">&lt;</span>');
-            if (external.hideNextPrev == 'hover') {
-              internal.ele.find(internal.btnPrev).hide();
-              internal.ele.find(internal.btnNext).hide();
-            }
-          }
+        b.children('.pf_ul_wrap').find('ul').css('left',(internal.index * internal.directionNum) * internal.removing);
+        internal.moveSwitch = true ;
+        next();
+        if (is_function(external.after)) {
+          external.after(internal.nowIndex , internal.nextIndex);
         }
-
-        // 添加缩略图
-
-        if (internal.nowIndex > internal.thumbShowSize || is_undefined(internal.thumbFirstMove)) {
-          internal.thumbArr = [0 , internal.thumbShowSize - 1] ;
-        } else {
-          internal.thumbArr = [internal.nowIndex - (internal.thumbShowSize - 1) , internal.nowIndex] ;
-        }
-
-        if (is_true(internal.thumbShow)) {
-          internal.ele.append('<div class="pf_thumb_wrap"><ul class="pf_thumb_ul"></ul></div>');
-          var oFragment = document.createDocumentFragment() , tw , otherW ;
-          for (var i = 0 ; i < internal.eliSize ; i ++) {
-            var li = document.createElement('li');
-            if (internal.thumbStatus === 2) {
-              var img = document.createElement('img');
-              img.src = internal.eli.eq(i).find('img').attr('src');
-              li.className = 'pf_thumb_pic' ;
-              li.appendChild(img);
-            } else if (internal.thumbStatus === 1) {
-              li.className = 'pf_thumb_point' ;
-            }
-            oFragment.appendChild(li);
-          }
-          internal.ele.find(internal.thumbDom).append(oFragment);
-          otherW = internal.ele.find(internal.thumbDom).find('li').outerWidth(true) - internal.ele.find(internal.thumbDom).find('li').width();
-          if (internal.thumbShowSize <= internal.eliSize && internal.thumbStatus != 1) {
-            tw = Math.ceil(internal.width / internal.thumbShowSize) ;
-          } else {
-            tw = Math.ceil(internal.width / internal.eliSize) ;
-          }
-          internal.ele.find(internal.thumbDom).find('li').width(tw - otherW);
-          internal.ele.find(internal.thumbDom).width(tw * internal.eliSize).parent().css({
-            'width' : internal.width
-          });
-
-          if (is_object(external.thumb.style)) {
-            internal.ele.find(internal.thumbDom).find('li').css(external.thumb.style);
-          }
-          internal.ele.find(internal.thumbDom).find('li').click(function () {
-            if (!internal.moveSwitch) return false ;
-            internal.index = $(this).index() + 1 ;
-            fun._clickMove();
-          });
-          otherFun._thumbClick(internal.index - 1);
-        }
-
-        // 添加提示文字
-        if (is_true(internal.txtShow)) {
-          internal.eul.parent().after('<div class="pf_txt_wrap"><ul class="pf_txt_ul"></ul><p class="pf_txt_bg"></p></div>');
-          var oFragment = document.createDocumentFragment();
-          for (var i = 0 ; i < internal.eliSize ; i ++) {
-            var li = document.createElement('li');
-            var span = document.createElement('span');
-            span.innerHTML = internal.eli.eq(i).find('img').attr('title');
-            li.appendChild(span);
-            oFragment.appendChild(li);
-          }
-          internal.ele.find(internal.txtDom).append(oFragment);
-          internal.ele.find(internal.txtDom).parent().css({
-            'width' : internal.width
-          });
-          otherFun._switchTxt(internal.index - 1);
-        }
-
-        // 上一个
-        internal.ele.find(internal.btnPrev).click(function () {
-            clearInterval(internal.timer);
-            fun._clickMove('prev');
-        });
-
-        // 下一个
-        internal.ele.find(internal.btnNext).click(function () {
-            clearInterval(internal.timer);
-            fun._clickMove('next');
-        });
-
-        // 前后按钮显示与隐藏
-        internal.eul.parent().on({
-          mouseenter : function () {
-            if (external.hideNextPrev == 'hover') {
-              internal.ele.find(internal.btnNext).show() ;
-              internal.ele.find(internal.btnPrev).show() ;
-            }
-            if (is_true(external.hoverStop)) {
-              clearInterval(internal.timer);
-              internal.ifHoverOut = true ;
-            }
-          } ,
-          mouseleave : function () {
-            if (external.hideNextPrev == 'hover') {
-              internal.ele.find(internal.btnNext).hide() ;
-              internal.ele.find(internal.btnPrev).hide() ;
-            }
-            if (is_true(external.hoverStop)) {
-              internal.ifHoverOut = false ;
-              internal.timer = setInterval(debugDirection , internal.interval);
-            }
-          }
-        });
-      } ,
-      // 前后按钮函数
-      _clickMove : function (a) {
-        if (!internal.moveSwitch) return false ;
-        internal.moveSwitch = false ;
+        if (!is_true(external.auto)) return false;
+        if (is_true(internal.ifHoverOut)) return false
         clearInterval(internal.timer);
+        internal.timer = setInterval(debugDirection , internal.interval);
 
-        var chuan = 1 ;
-        if (a === 'next') {
-          internal.index ++ ;
-        } else if (a === 'prev') {
-          internal.index -- ;
-          chuan = -1 ;
-        }
-
-        // 處理下標
-        internal.nowIndex = internal.index - 1 ;
-        internal.nextIndex = internal.nowIndex + chuan ;
-        if (internal.nowIndex >= internal.eliSize ) {
-          internal.nowIndex %= internal.eliSize ;
-        } else if (internal.nowIndex < 0) {
-          internal.nowIndex += internal.eliSize ;
-        }
-        if (internal.nextIndex >= internal.eliSize) {
-          internal.nextIndex %= internal.eliSize ;
-        } else if (internal.nextIndex < 0) {
-          internal.nextIndex += internal.eliSize ;
-        }
-
-        otherFun._thumbClick(internal.nowIndex);
-        otherFun._switchTxt(internal.nowIndex);
-        // 運動
-        internal.eul.stop().animate({
-          'left' : (internal.index * internal.directionNum) * internal.removing
-        },internal.duration , internal.easing).queue(function (next) {
-
-          if (internal.index == (internal.eliSize + 1)) {
-            internal.index = 1;
-          } else if (internal.index == 0) {
-            internal.index = internal.eliSize;
+      });
+    };
+    fun._thumbClick = function (n , b) {
+      if (!is_true(internal.thumbShow)) return false;
+      if (internal.eliSize > internal.thumbShowSize && internal.thumbStatus != 1) {
+        if (n >= Math.max.apply(null , internal.thumbArr)) {
+          if (n >= internal.eliSize - 1) {
+            internal.thumbArr = [internal.eliSize - internal.thumbShowSize , internal.eliSize - 1] ;
+          } else {
+            internal.thumbArr = [n - (internal.thumbShowSize - 2) , n + 1] ;
           }
-          internal.eul.css('left',(internal.index * internal.directionNum) * internal.removing);
-          internal.moveSwitch = true ;
-          next();
-          if (is_function(external.after)) {
-            external.after(internal.nowIndex , internal.nextIndex);
+        } else if (n <= Math.min.apply(null , internal.thumbArr)) {
+          if (n <= 0) {
+            internal.thumbArr = [0 , internal.thumbShowSize - 1] ;
+          } else {
+            internal.thumbArr = [n - 1 , n + (internal.thumbShowSize - 2)] ;
           }
-          if (!is_true(external.auto)) return false;
-          if (is_true(internal.ifHoverOut)) return false
-          clearInterval(internal.timer);
-          internal.timer = setInterval(debugDirection , internal.interval);
+        }
 
-        });
+        if (!is_undefined(internal.thumbFirstMove)) {
+          internal.ele.find(internal.thumbDom).stop().animate({
+            'left' : - Math.min.apply(null , internal.thumbArr) * internal.ele.find(internal.thumbDom).find('li').outerWidth(true)
+          },internal.duration , internal.easing);
+        }
+
       }
-    }
 
-    var otherFun = {
-      _thumbClick : function (n) {
-        if (!is_true(internal.thumbShow)) return false;
-        if (internal.eliSize > internal.thumbShowSize && internal.thumbStatus != 1) {
-          if (n >= Math.max.apply(null , internal.thumbArr)) {
-            if (n >= internal.eliSize - 1) {
-              internal.thumbArr = [internal.eliSize - internal.thumbShowSize , internal.eliSize - 1] ;
-            } else {
-              internal.thumbArr = [n - (internal.thumbShowSize - 2) , n + 1] ;
-            }
-          } else if (n <= Math.min.apply(null , internal.thumbArr)) {
-            if (n <= 0) {
-              internal.thumbArr = [0 , internal.thumbShowSize - 1] ;
-            } else {
-              internal.thumbArr = [n - 1 , n + (internal.thumbShowSize - 2)] ;
-            }
-          }
-          if (!is_undefined(internal.thumbFirstMove)) {
-            internal.ele.find(internal.thumbDom).stop().animate({
-              'left' : - Math.min.apply(null , internal.thumbArr) * internal.ele.find(internal.thumbDom).find('li').outerWidth(true)
-            },internal.duration , internal.easing);
-          }
-
+      internal.ele.find(internal.thumbDom).find('li').each(function (index , element) {
+        $(element).removeClass('active');
+      });
+      internal.ele.find(internal.thumbDom).find('li').eq(n).addClass('active');
+      internal.thumbFirstMove = 'zhouzuchuan' ;
+    } ,
+    fun._switchTxt = function (n) {
+      if (!is_true(internal.txtShow)) return false;
+      internal.ele.find(internal.txtDom).find('li').each(function (index , element) {
+        $(element).removeClass('active');
+      });
+      internal.ele.find(internal.txtDom).find('li').eq(n).addClass('active');
+    } ,
+    fun._imgLoad = function (obj ,callback) {
+      var timer2 = setInterval(function() {
+        if (obj.complete || (obj.width && obj.height && document.all)) {
+          callback(obj);
+          clearInterval(timer2);
         }
-
-        internal.ele.find(internal.thumbDom).find('li').each(function (index , element) {
-          $(element).removeClass('active');
-        });
-        internal.ele.find(internal.thumbDom).find('li').eq(n).addClass('active');
-        internal.thumbFirstMove = 'zhouzuchuan' ;
-      } ,
-      _switchTxt : function (n) {
-        if (!is_true(internal.txtShow)) return false;
-        internal.ele.find(internal.txtDom).find('li').each(function (index , element) {
-          $(element).removeClass('active');
-        });
-        internal.ele.find(internal.txtDom).find('li').eq(n).addClass('active');
-      } ,
-      _imgLoad : function (obj ,callback) {
-        var timer2 = setInterval(function() {
-          if (obj.complete || (obj.width && obj.height && document.all)) {
-            callback(obj);
-            clearInterval(timer2);
-          }
-        },30);
-      } ,
-      _loading : function () {
-        if (!is_true(internal.loadingShow)) return false;
-        internal.eul.find('li').each(function (index , element) {
-          $(element).append('<div class="pf_loading"><span class=""><em></em><strong>' + internal.loadingText + '</strong></span></div>');
-          if (!is_false(external.loading.loadingImgSrc)) {
-            $(element).find('.pf_loading').find('em').addClass('pf_loading_ico').css({
-              'background-image' :  'url(' + internal.loadingImgSrc + ')'
-            });
-          }
-          otherFun._imgLoad($(element).find('img').get(0) , function (obj) {
-            $(obj).parents('li').find('.pf_loading').remove();
+      },30);
+    } ,
+    fun._loading = function () {
+      if (!is_true(internal.loadingShow)) return false;
+      internal.eul.find('li').each(function (index , element) {
+        $(element).append('<div class="pf_loading"><span class=""><em></em><strong>' + internal.loadingText + '</strong></span></div>');
+        if (!is_false(external.loading.loadingImgSrc)) {
+          $(element).find('.pf_loading').find('em').addClass('pf_loading_ico').css({
+            'background-image' :  'url(' + internal.loadingImgSrc + ')'
           });
+        }
+        fun._imgLoad($(element).find('img').get(0) , function (obj) {
+          $(obj).parents('li').find('.pf_loading').remove();
         });
-        $('.pf_loading').height(internal.height);
-
-      }
+      });
+      $('.pf_loading').height(internal.height);
     }
 
     // 指定按鈕
@@ -402,7 +406,7 @@
       internal.loadingImgSrc = external.loading.loadingImgSrc ;
     }
     fun._init();
-    otherFun._loading();
+    fun._loading();
 
     // 處理運動方式
     if (is_number(external.scroll.interval)) {
@@ -425,9 +429,9 @@
     // 處理運動方向
     function debugDirection () {
       if (is_string(external.direction) && external.direction == 'left') {
-        fun._clickMove('next');
+        fun._clickMove('next' , internal.ele);
       } else if (is_string(external.direction) && external.direction == 'right') {
-        fun._clickMove('prev');
+        fun._clickMove('prev' , internal.ele);
       }
     }
   }

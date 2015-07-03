@@ -5,7 +5,7 @@
 <title>焦点图</title>
 <link rel="stylesheet" href="http://365jia.cn/css/basic.css" type="text/css" />
 <script type="text/javascript" src="http://365jia.cn/js/jQuery/jquery-1.8.2.min.js"></script>
-<script type="text/javascript" src="js/picFocus.js"></script>
+<script type="text/javascript" src="js/jQuery-picFocus.min.js"></script>
 <style>
 .main { width: 1000px; margin: 0 auto;}
 </style>
@@ -13,60 +13,30 @@
 <body>
 <div class="main">
   <div class="pic_focus">
-    <ul> 
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic16.huitu.com/res/20131231/523_20131231215854622200_1.jpg" title="标题1" /></a>
-      </li>
-
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic28.huitu.com/res/20150227/572294_20150227204507650200_1.jpg" title="标题2" /></a>
-      </li>
-
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150126/670166_20150126114948336200_1.jpg" title="标题3" /></a>
-      </li>
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150116/660153_20150116132847292174_1.jpg" title="标题4" /></a>
-      </li>
-
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150116/660153_20150116132847337119_1.jpg" title="标题5" /></a>
-      </li>
-
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150126/670166_20150126114948336200_1.jpg" title="标题6" /></a>
-      </li>
+    <ul>
+      <li><a href="javascript:void(0);"><img src="images/img01.jpg" title="标题1" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img02.jpg" title="标题2" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img03.jpg" title="标题3" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img04.jpg" title="标题4" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img05.jpg" title="标题5" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img06.jpg" title="标题6" /></a></li>
     </ul>
   </div>
   </br>
   </br>
 
   <div class="picFocus2">
-    <ul> 
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic16.huitu.com/res/20131231/523_20131231215854622200_1.jpg" title="标题1" /></a>
-      </li>
-
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic28.huitu.com/res/20150227/572294_20150227204507650200_1.jpg" title="标题2" /></a>
-      </li>
-
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150126/670166_20150126114948336200_1.jpg" title="标题3" /></a>
-      </li>
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150116/660153_20150116132847292174_1.jpg" title="标题4" /></a>
-      </li>
-
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150116/660153_20150116132847337119_1.jpg" title="标题5" /></a>
-      </li>
-
-      <li>
-        <a href="javascript:void(0);"><img src="http://pic27.huitu.com/res/20150126/670166_20150126114948336200_1.jpg" title="标题6" /></a>
-      </li>
+    <ul>
+      <li><a href="javascript:void(0);"><img src="images/img07.jpg" title="标题1" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img08.jpg" title="标题2" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img09.jpg" title="标题3" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img10.jpg" title="标题4" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img11.jpg" title="标题5" /></a></li>
+      <li><a href="javascript:void(0);"><img src="images/img12.jpg" title="标题6" /></a></li>
     </ul>
   </div>
+
+
     <a href="javascript:void(0);" class="test_next mr30">next</a>
     <a href="javascript:void(0);" class="test_prev ml30">prev</a>
 <div>
@@ -79,7 +49,7 @@
     direction : 'left' ,
     width: 800,
     height: 300 ,
-    auto : false ,
+    auto : true ,
     // next : '.test_next' ,
     // prev : '.test_prev' ,
     hideNextPrev : 'hover' ,

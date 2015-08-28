@@ -9,6 +9,7 @@
 
   * v1.0.0 【2015.05.18】
   * v1.0.1 【2015.07.03】
+  * v1.0.2 【2015.08.12】
 
 * 注：
  * 为了避免出现错误，该版本引用jquery库请选择1.7版本以上
@@ -44,13 +45,14 @@
     height : 'auto' ,       /*高度*/
     next : '' ,             /*指定下一个按钮类*/
     prev : '' ,             /*指定上一个按钮类*/
+    copySize : 1 ,          /*指定复制多少节点*/
     auto : true ,           /*开启自动滚动*/
     hideNextPrev : false ,  /*隐藏按钮 'hover'为悬浮出现 'true'为不出现 'false'为出现 */
     hoverStop : false ,     /*悬浮停止运动*/
     loading : {
       show : true ,         /*是否开启加载样式*/
       text : '' ,           /*加载提示文字*/
-      loadingImgSrc : ''    /*加载等待动画路径 如果为false则不显示图片*/
+     loadingImgSrc : ''    /*加载等待动画路径 如果为false则不显示图片*/
     },
     scroll : {
       interval : 2000 ,     /*滚动切换间隔时间*/
@@ -66,7 +68,8 @@
     txt : {
       show : false           /*是否开启提示文字*/
     },
-    after : $.noop           /*切换之后执行的函数内部有两个参数（nowIndex , nextIndex）自动切换下 (现在显示的下标 , 下一个显示的下标)*/
+    loadAfter : $.noop ,     /*图片加载完成之后执行的函数 参数是一个对象param里面的参数有nowImg(当前显示的图片JQ对象)，totalSize(焦点图总数) ，nowIndex(当前显示图片的下标) ，nextIndex(下个显示的下标)*/
+    after : $.noop           /*切换之后执行的函数 参数是一个对象param里面的参数有nowImg(当前显示的图片JQ对象)，totalSize(焦点图总数) ，nowIndex(当前显示图片的下标) ，nextIndex(下个显示的下标)*/
   });
 
 
@@ -95,6 +98,12 @@
 <em>必选（number），焦点图高度</em>
 
 ### height : 1200
+
+=================================
+
+<em>必选（number），焦点图复制多少节点 ，默认为1</em>
+
+### copySize : 1
 
 =================================
 
@@ -218,7 +227,15 @@
 
 =================================
 
-<em>可选，切换之后执行的函数内部有两个参数（nowIndex , nextIndex）自动切换下 (现在显示的下标 , 下一个显示的下标)</em>
+<em>可选，图片加载完成之后执行的函数
+参数是一个对象param里面的参数有nowImg(当前显示的图片JQ对象)，totalSize(焦点图总数) ，nowIndex(当前显示图片的下标) ，nextIndex(下个显示的下标)</em>
+
+### loadAfter : $.noop
+
+=================================
+
+<em>可选，图片每次切换之后执行的函数
+参数是一个对象param里面的参数有nowImg(当前显示的图片JQ对象)，totalSize(焦点图总数) ，nowIndex(当前显示图片的下标) ，nextIndex(下个显示的下标)</em>
 
 ### after : $.noop
 
